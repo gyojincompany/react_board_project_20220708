@@ -81,6 +81,12 @@ function Board() {
         setModalOn(false);
     };
 
+    const handleDelete = (deleteId)=> {
+        setInfo(
+            info => info.filter(item => item.id !== deleteId)
+        );
+    };
+
     return(
         <div className=''>
             <div className='text-center font-bold'>고객 정보 리스트</div>
@@ -96,7 +102,7 @@ function Board() {
                         <th className='text-gray-300'>글삭제</th>
                     </tr>
                 </thead>
-                <Tr info={info} handleModify={handleModify}></Tr>
+                <Tr info={info} handleModify={handleModify} handleDelete={handleDelete}></Tr>
             </table>
             <Post onSaveData={handleSave}></Post>
             {modalOn && <Modal selectedData={selected} handleCancel={handleCancel} handleModifySubmit={handleModifySubmit}></Modal>}
