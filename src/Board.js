@@ -4,11 +4,14 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import Tr from './Tr';
 import Post from './Post';
+import Modal from './Modal';
 
 
 function Board() {
 
     const [info, setInfo] = useState([]);
+    const [modalOn, setModalOn] = useState(false);
+    const [selected, setSelected] = useState('');
 
     useEffect(()=> {
         axios.get('https://jsonplaceholder.typicode.com/users')
@@ -19,6 +22,20 @@ function Board() {
     const nextId = useRef(11);//id 초기값 선언(기존 원소의 수가 10개 이므로 11부터 시작)
 
     const handleSave = (infoData)=> {
+
+        if (infoData.id) {    // 수정에서 넘어온 데이터는 id값이 존재함
+            setInfo(
+                info.map(row => infoData.id === row.id ? { // 수정된 글의 id가 기존 테이블의 id와 같으면
+                    id:infoData.id,
+                    name:infoData.name,
+                    email:infoData.email,
+                    phone:infoData.phone,
+                    website:infoData.website
+                }:row   
+                ))
+
+
+        } else {
         // setInfo((prevInfo)=>{
         //     return[
         //         ...prevInfo,{
@@ -39,6 +56,29 @@ function Board() {
             }
         ))
         nextId.current += 1;
+    }
+    }
+
+    const handleModify = (item) =>{
+        setModalOn(true);
+        const selectedData = {
+            id:item.id,
+            name:item.name,
+            email:item.email,
+            phone:item.phone,
+            website:item.website
+        };
+
+        setSelected(selectedData);
+    };
+
+    const handleCancel =() =>{
+        setModalOn(false);
+    };
+
+    const handleModifySubmit =(item)=>{
+        handleSave(item);
+        setModalOn(false);
     };
 
     return(
@@ -56,9 +96,10 @@ function Board() {
                         <th className='text-gray-300'>글삭제</th>
                     </tr>
                 </thead>
-                <Tr info={info}></Tr>
+                <Tr info={info} handleModify={handleModify}></Tr>
             </table>
             <Post onSaveData={handleSave}></Post>
+            {modalOn && <Modal selectedData={selected} handleCancel={handleCancel} handleModifySubmit={handleModifySubmit}></Modal>}
         </div>
     );
 }
